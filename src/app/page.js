@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { validationRules } from "@/utlils/validation";
 import { useSnackbar } from "notistack";
@@ -21,6 +22,32 @@ const Login = () => {
 
   const handleLogin = async (data) => {
     setLoading(true);
+    try {
+      const signInResponse = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (signInResponse && !signInResponse.error) {
+        enqueueSnackbar("Login successful", {
+          preventDuplicate: true,
+          variant: "success",
+        });
+        router.push("/movies");
+      } else {
+        // Handle sign-in error
+        console.error("Incorrect Email", signInResponse.error);
+
+        enqueueSnackbar("Incorrect Email and Password", {
+          preventDuplicate: true,
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      console.error("Unexpected error during sign-in:", error);
+    }
   };
   return (
     <>

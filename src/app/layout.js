@@ -1,5 +1,10 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Providers from "@/store/provider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../lib/auth";
+import { NextAuthProvider } from "../lib/authProvider";
+import SnackProvider from "@/lib/SnackProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,6 +14,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <head>
@@ -19,7 +25,13 @@ export default async function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <SnackProvider>
+          <Providers>
+            <NextAuthProvider session={session}>{children}</NextAuthProvider>
+          </Providers>
+        </SnackProvider>
+      </body>
     </html>
   );
 }
